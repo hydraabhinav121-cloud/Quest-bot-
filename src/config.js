@@ -1,5 +1,12 @@
-export const OWNER_ID = process.env.OWNER_ID || '985486854159753256';
-export const OWNER_TAG = '985486854159753256';
+const parseIds = (v) =>
+  (v || '')
+    .split(/[,\s]+/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+export const OWNER_IDS = [...new Set([...parseIds(process.env.OWNER_IDS), ...parseIds(process.env.OWNER_ID), '985486854159753256'])];
+export const OWNER_ID = OWNER_IDS[0];
+export const OWNER_TAG = OWNER_ID;
 
 export const DEV_NAME = process.env.DEV_NAME || 'shimz';
 export const DEV_LINK = process.env.DEV_LINK || 'https://github.com/shimz';
@@ -10,7 +17,7 @@ export const BOT_INVITE =
   process.env.BOT_INVITE ||
   `https://discord.com/oauth2/authorize?client_id=${process.env.CLIENT_ID || '1565571186501357568'}&permissions=268435456&scope=bot%20applications.commands`;
 
-export const PREFIX = { free: '$', premium: ':' };
+export const PREFIX = { free: '$', premium: ':', alt: '!!' };
 export const SLOTS = { free: 2, premium: 5 };
 
 export const INVITE_PREMIUM_COUNT = 3;
