@@ -93,6 +93,7 @@ export const list = [
   {
     name: 'afk',
     aliases: ['presence'],
+    modal: true,
     description: 'Set a fake 24/7 presence (game / anime / site / coding)',
     options: [
       {
@@ -131,6 +132,7 @@ export const list = [
   },
   {
     name: 'afkcustom',
+    modal: true,
     description: 'Custom AFK text',
     async run(ctx) {
       if (!store.user(ctx.user.id).accounts.length) return ctx.reply('Pehle `link` se account link karo.');
