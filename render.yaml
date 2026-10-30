@@ -1,23 +1,23 @@
 services:
-  - type: worker
-    name: orbie-premium
+  - type: web
+    name: questall-bot
     runtime: node
-    plan: starter
+    plan: free
     buildCommand: npm install
     startCommand: npm start
-    autoDeploy: true
-    disk:
-      name: orbie-premium-data
-      mountPath: /opt/render/project/src/data
-      sizeGB: 1
+    healthCheckPath: /
     envVars:
-      - key: DATA_DIR
-        value: /opt/render/project/src/data
       - key: BOT_TOKEN
         sync: false
       - key: CLIENT_ID
         sync: false
       - key: OWNER_ID
-        sync: false
+        value: "985486854159753256"
+      - key: GUILD_ID
+        value: "1536279239945617529"
       - key: TOKEN_SECRET
         sync: false
+      - key: DEV_NAME
+        value: shimz
+      - key: DATA_DIR
+        value: ./data
