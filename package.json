@@ -1,10 +1,17 @@
 {
-  "name": "questall-bot",
+  "name": "orbie-premium",
   "version": "2.0.0",
   "author": "shimz",
   "type": "module",
   "main": "src/index.js",
-  "scripts": { "start": "node src/index.js" },
-  "dependencies": { "discord.js": "^14.16.3", "dotenv": "^16.4.5" },
-  "engines": { "node": ">=20" }
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.16.3",
+    "dotenv": "^16.4.5"
+  },
+  "engines": {
+    "node": ">=20"
+  }
 }
