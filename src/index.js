@@ -1,4 +1,5 @@
 import 'dotenv/config';
+import http from 'node:http';
 import { Client, GatewayIntentBits, Partials, Collection, ActivityType } from 'discord.js';
 import * as store from './store.js';
 import { commands, find } from './commands/index.js';
@@ -224,6 +225,14 @@ async function notifyLoop() {
     user?.send(`📜 **New quests detected**\n${fresh.map((q) => `• ${q.config?.messages?.quest_name || q.id}`).join('\n')}\n\n\`:questall\` chala do.`).catch(() => {});
   }
 }
+
+const PORT = process.env.PORT || 3000;
+http
+  .createServer((req, res) => {
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.end(`ok ${client.user?.tag ?? 'booting'}`);
+  })
+  .listen(PORT, '0.0.0.0', () => log(`health server on ${PORT}`));
 
 client.login(process.env.BOT_TOKEN).catch((e) => {
   console.error('login failed', e.message);
