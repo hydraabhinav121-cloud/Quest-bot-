@@ -144,6 +144,7 @@ export const list = [
   {
     name: 'link',
     aliases: ['l'],
+    modal: true,
     description: 'Link a Discord account to a slot',
     async run(ctx) {
       const u = store.user(ctx.user.id);
@@ -366,6 +367,7 @@ export const list = [
   },
   {
     name: 'redeem',
+    modal: true,
     description: 'Redeem a premium key',
     async run(ctx) {
       return ctx.showModal(
