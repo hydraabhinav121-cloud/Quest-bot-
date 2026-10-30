@@ -1,6 +1,5 @@
 import 'dotenv/config';
 import './health.js';
-import http from 'node:http';
 import { Client, GatewayIntentBits, Partials, Collection, ActivityType } from 'discord.js';
 import * as store from './store.js';
 import { commands, find } from './commands/index.js';
@@ -30,6 +29,9 @@ const client = new Client({
 client.commands = new Collection(commands.map((c) => [c.name, c]));
 
 const log = (...a) => console.log(`[${new Date().toISOString()}]`, ...a);
+
+process.on('unhandledRejection', (e) => log('unhandledRejection', e?.message || e));
+process.on('uncaughtException', (e) => log('uncaughtException', e?.message || e));
 
 function makeCtx(message, command) {
   const args = {};
@@ -71,7 +73,11 @@ function makeSlashCtx(interaction) {
     member: interaction.member,
     channel: interaction.channel,
     bot: client,
-    reply: (p) => (interaction.deferred || interaction.replied ? interaction.followUp(p) : interaction.reply(p)),
+    reply: (p) => {
+      if (interaction.deferred) return interaction.editReply(p);
+      if (interaction.replied) return interaction.followUp(p);
+      return interaction.reply(p);
+    },
     followUp: (p) => interaction.followUp(p),
     showModal: (m) => interaction.showModal(m),
   };
@@ -120,15 +126,18 @@ client.on('messageCreate', async (message) => {
   if (message.author.bot || !message.guild) return;
 
   const owner = isOwner(message.author.id);
-  const allowed = owner ? [PREFIX.premium, PREFIX.free] : [isPremium(message.author.id) ? PREFIX.premium : PREFIX.free];
+  const prefixes = [PREFIX.premium, PREFIX.free, PREFIX.alt];
 
   let content = null;
-  if (owner && !allowed.some((p) => message.content.startsWith(p))) content = message.content;
-  else {
-    const p = allowed.find((x) => message.content.startsWith(x));
-    if (p) content = message.content.slice(p.length);
+  if (owner) {
+    const p = prefixes.find((x) => message.content.startsWith(x));
+    content = p ? message.content.slice(p.length) : message.content;
+  } else {
+    const p = isPremium(message.author.id) ? [PREFIX.premium, PREFIX.alt] : [PREFIX.free, PREFIX.alt];
+    const hit = p.find((x) => message.content.startsWith(x));
+    if (hit) content = message.content.slice(hit.length);
   }
-  if (!content) return;
+  if (!content || !content.trim()) return;
 
   const [name, ...rest] = content.trim().split(/\s+/);
   const command = find(name.toLowerCase());
@@ -156,13 +165,20 @@ client.on('interactionCreate', async (interaction) => {
       const command = find(interaction.commandName);
       if (!command) return;
       const owner = isOwner(interaction.user.id);
+
       if (command.ownerOnly && !owner) return interaction.reply({ content: '❌ Owner only.', ephemeral: true });
       if (isBlacklisted(interaction.user.id) && !owner) return interaction.reply({ content: '❌ Blacklisted.', ephemeral: true });
+
+      if (!command.modal) await interaction.deferReply().catch(() => {});
       return await command.run(makeSlashCtx(interaction));
     }
   } catch (e) {
     log('interaction error', e.message);
-    if (interaction.isRepliable() && !interaction.replied) interaction.reply({ content: `⚠️ ${e.message}`, ephemeral: true }).catch(() => {});
+    if (interaction.isRepliable()) {
+      const body = { content: `⚠️ ${e.message}`, ephemeral: true };
+      if (interaction.deferred) interaction.editReply(body).catch(() => {});
+      else if (!interaction.replied) interaction.reply(body).catch(() => {});
+    }
   }
 });
 
@@ -228,6 +244,8 @@ async function notifyLoop() {
 }
 
 client.login(process.env.BOT_TOKEN).catch((e) => {
-  console.error('login failed', e.message);
+  console.error('login failed:', e.message);
+  if (String(e.message).includes('disallowed intents'))
+    console.error('>>> Developer Portal me Message Content + Server Members intent ON karo');
   process.exit(1);
 });
