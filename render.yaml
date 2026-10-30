@@ -17,5 +17,7 @@ services:
         sync: false
       - key: CLIENT_ID
         sync: false
+      - key: OWNER_ID
+        sync: false
       - key: TOKEN_SECRET
         sync: false
