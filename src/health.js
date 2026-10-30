@@ -12,3 +12,11 @@ server.listen(PORT, '0.0.0.0', () => {
 });
 
 server.on('error', (e) => console.log('[health] error', e.message));
+
+const url = process.env.KEEPALIVE_URL;
+if (url) {
+  setInterval(() => {
+    fetch(url).catch(() => {});
+  }, 10 * 60 * 1000);
+  console.log('[health] self keep-alive on');
+}
