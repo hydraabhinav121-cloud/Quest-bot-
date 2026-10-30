@@ -1,7 +1,7 @@
-import { OWNER_ID, SLOTS, PREFIX, QUEST_ROLE_DAYS } from './config.js';
+import { OWNER_IDS, SLOTS, PREFIX, QUEST_ROLE_DAYS } from './config.js';
 import * as store from './store.js';
 
-export const isOwner = (id) => id === OWNER_ID;
+export const isOwner = (id) => OWNER_IDS.includes(id);
 export const isBlacklisted = (id) => store.db_().blacklist.includes(id);
 
 export function tier(id) {
@@ -14,7 +14,11 @@ export function tier(id) {
 
 export const isPremium = (id) => tier(id) === 'premium' || tier(id) === 'owner';
 export const slots = (id) => (isPremium(id) ? SLOTS.premium : SLOTS.free);
-export const prefixFor = (id) => (isOwner(id) ? null : isPremium(id) ? PREFIX.premium : PREFIX.free);
+
+export function prefixFor(id) {
+  if (isOwner(id)) return null;
+  return isPremium(id) ? PREFIX.premium : PREFIX.free;
+}
 
 export function grantPremium(id, days, reason) {
   const u = store.user(id);
