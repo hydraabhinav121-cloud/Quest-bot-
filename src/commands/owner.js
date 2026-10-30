@@ -297,6 +297,7 @@ export const list = [
     ...owner,
     name: 'setfeedback',
     aliases: ['feedback'],
+    modal: true,
     description: 'Set the message sent after every quest completion',
     async run(ctx) {
       return ctx.showModal(
