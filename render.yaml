@@ -1,13 +1,13 @@
 services:
   - type: worker
-    name: questall-bot
+    name: orbie-premium
     runtime: node
     plan: starter
     buildCommand: npm install
     startCommand: npm start
     autoDeploy: true
     disk:
-      name: questall-data
+      name: orbie-premium-data
       mountPath: /opt/render/project/src/data
       sizeGB: 1
     envVars:
